@@ -1,9 +1,9 @@
 package org.kapunga.spjall.web
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest}
-import org.kapunga.spjall.{SlackId, botTokenParam}
-import spray.json.{DefaultJsonProtocol, RootJsonFormat}
+import akka.http.scaladsl.model.{ HttpMethods, HttpRequest }
+import org.kapunga.spjall.{ SlackId, botTokenParam }
+import spray.json.{ DefaultJsonProtocol, RootJsonFormat }
 
 import scala.concurrent.Future
 
