@@ -28,6 +28,16 @@ trait WebApi {
       }
   }
 
+  /**
+   * Performs paged Web API Request. Slack has support
+   * @param rg
+   * @param carry
+   * @param w
+   * @param m
+   * @param as
+   * @tparam A
+   * @return
+   */
   def performPagedApiRequest[A: JsonFormat](
     rg: Option[Meta] => HttpRequest,
     carry: Seq[A] = Nil,
