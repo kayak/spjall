@@ -1,6 +1,9 @@
 package org.kapunga.spjall
 
-import spray.json._
+import cats.syntax.either._
+
+import io.circe._
+import io.circe.Decoder.Result
 
 import scala.util.matching.Regex
 
@@ -31,6 +34,17 @@ case class UserId(id: String) extends SlackId {
 case class UnknownId(id: String) extends SlackId
 
 object SlackId {
+  implicit val slackIdDecoder: Decoder[SlackId] = new Decoder[SlackId] {
+    override def apply(c: HCursor): Result[SlackId] =
+      for {
+        sid <- c.as[String]
+      } yield { SlackId.apply(sid) }
+  }
+
+  implicit val slackIdEncoder: Encoder[SlackId] = new Encoder[SlackId] {
+    override def apply(a: SlackId): Json = Json.fromString(a.id)
+  }
+
   val idFormat: String = "[A-Z][A-Z0-9]{8}"
   val mentionRx: Regex = s"<[@#]($idFormat)>".r
 
@@ -66,18 +80,4 @@ object SlackId {
     mentionRx.findAllMatchIn(msg)
       .map(_.group(1)).toSeq
       .map(SlackId(_))
-}
-
-/**
- * The Spray JSON Protocol for serializing and de-serializing SlackIds
- */
-object SlackIdJsonProtocol extends DefaultJsonProtocol {
-  implicit val slackIdFormat: RootJsonFormat[SlackId] = new RootJsonFormat[SlackId] {
-    override def read(json: JsValue): SlackId = json match {
-      case JsString(id) => SlackId(id)
-      case _ => throw DeserializationException("Expected String for Type `SlackId`...")
-    }
-
-    override def write(obj: SlackId): JsValue = JsString(obj.id)
-  }
 }
