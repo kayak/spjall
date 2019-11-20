@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ HttpMethods, HttpRequest }
 import org.kapunga.spjall.web.ApiResponse.Meta
 import org.kapunga.spjall.model.User
-import org.kapunga.spjall.{ SlackId, botTokenParam }
+import org.kapunga.spjall._
 
 import scala.concurrent.Future
 
