@@ -42,6 +42,15 @@ package object web {
      * @return An `Option` containing response metadata if it exists.
      */
     def meta: Option[Meta]
+
+    /**
+     * Transform the response contents.
+     *
+     * @param f
+     * @tparam B
+     * @return
+     */
+    def map[B](f: A => B): ApiResponse[B]
   }
 
   object ApiResponse {
@@ -90,16 +99,19 @@ package object web {
     case class Okay[A](a: A, m: Option[Meta]) extends ApiResponse[A] {
       override def get: A = a
       override def meta: Option[Meta] = m
+      override def map[B](f: A => B): ApiResponse[B] = Okay(f(a), m)
     }
 
     case class Warning[A](a: A, warning: String, m: Option[Meta]) extends ApiResponse[A] {
       override def get: A = a
       override def meta: Option[Meta] = m
+      override def map[B](f: A => B): ApiResponse[B] = Warning(f(a), warning, m)
     }
 
     case class Error[A](error: String) extends ApiResponse[A] {
       override def get: A = throw new Exception(s"Response returned an error: $error")
       override def meta: Option[Meta] = throw new Exception(s"Response returned an error: $error")
+      override def map[B](f: A => B): ApiResponse[B] = Error(error)
     }
 
     /**
