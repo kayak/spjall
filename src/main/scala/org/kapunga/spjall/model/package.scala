@@ -1,6 +1,11 @@
 package org.kapunga.spjall
 
 package object model {
+  trait SlackObject {
+    val id: SlackId
+    val identifiers: List[String] = Nil
+  }
+
   object ConvTypes extends Enumeration {
     type ConvTypes = Value
     val CHANNEL = Value("public_channel")

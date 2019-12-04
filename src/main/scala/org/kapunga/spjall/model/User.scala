@@ -16,7 +16,10 @@ case class User(
   props: User.Props,
   color: Option[String],
   updated: Long,
-  locale: Option[String])
+  locale: Option[String]) extends SlackObject {
+
+  override val identifiers: List[String] = name :: profile.contact.email.toList
+}
 
 object User {
   case class Tz(name: Option[String], label: String, offset: Int)
@@ -111,13 +114,12 @@ object User {
 case class Profile(
   names: Profile.Names,
   contact: Profile.Contact,
-  status: Status,
-  title: String,
+  status: Option[Status],
+  title: Option[String],
   avatarHash: String,
   images: Profile.Images,
   team: SlackId,
   alwaysActive: Boolean,
-  fields: Option[String],
   guestChannels: Option[String],
   invitedBy: Option[SlackId])
 
@@ -140,19 +142,20 @@ object Profile {
     img48: String,
     img72: String,
     img192: String,
-    img512: String)
+    img512: String,
+    img1024: Option[String])
 
   implicit val profileDecoder: Decoder[Profile] = new Decoder[Profile] {
     override def apply(c: HCursor): Result[Profile] =
       for {
-        title <- c.downField("title").as[String]
-        phone <- c.downField("phone").as[String]
-        skype <- c.downField("skype").as[String]
+        title <- c.downField("title").as[Option[String]]
+        phone <- c.downField("phone").as[Option[String]]
+        skype <- c.downField("skype").as[Option[String]]
         avatarHash <- c.downField("avatar_hash").as[String]
-        statusText <- c.downField("status_text").as[String]
-        statusTextCanonical <- c.downField("status_text_canonical").as[String]
-        statusEmoji <- c.downField("status_emoji").as[String]
-        statusExpiration <- c.downField("status_expiration").as[Long]
+        statusText <- c.downField("status_text").as[Option[String]]
+        statusTextCanonical <- c.downField("status_text_canonical").as[Option[String]]
+        statusEmoji <- c.downField("status_emoji").as[Option[String]]
+        statusExpiration <- c.downField("status_expiration").as[Option[Long]]
         realName <- c.downField("real_name").as[String]
         displayName <- c.downField("display_name").as[String]
         realNameNorm <- c.downField("real_name_normalized").as[String]
@@ -161,7 +164,6 @@ object Profile {
         lastName <- c.downField("last_name").as[Option[String]]
         alwaysActive <- c.downField("always_active").as[Option[Boolean]]
         email <- c.downField("email").as[Option[String]]
-        fields <- c.downField("fields").as[Option[String]]
         guestChannels <- c.downField("guest_channels").as[Option[String]]
         invitedBy <- c.downField("guest_invited_by").as[Option[String]]
         isCustomImage <- c.downField("is_custom_image").as[Option[Boolean]]
@@ -172,18 +174,23 @@ object Profile {
         img72 <- c.downField("image_72").as[String]
         img192 <- c.downField("image_192").as[String]
         img512 <- c.downField("image_512").as[String]
+        img1024 <- c.downField("image_1024").as[Option[String]]
         team <- c.downField("team").as[SlackId]
       } yield {
         Profile(
           Names(realName, realNameNorm, displayName, displayNameNorm, firstName, lastName),
-          Contact(emptyStringOption(phone), emptyStringOption(skype), email),
-          Status(statusText, statusTextCanonical, statusEmoji, statusExpiration),
+          Contact(phone.flatMap(emptyStringOption), skype.flatMap(emptyStringOption), email),
+          for {
+            text <- statusText
+            textCanonical <- statusTextCanonical
+            emoji <- statusEmoji
+            expire <- statusExpiration
+          } yield { Status(text, textCanonical, emoji, expire) },
           title,
           avatarHash,
-          Images(imgOrig, isCustomImage.getOrElse(false), img24, img32, img48, img72, img192, img512),
+          Images(imgOrig, isCustomImage.getOrElse(false), img24, img32, img48, img72, img192, img512, img1024),
           team,
           alwaysActive.getOrElse(false),
-          fields,
           guestChannels,
           invitedBy.flatMap(emptyStringOption).map(SlackId.apply))
       }
@@ -200,10 +207,10 @@ object Profile {
       ("phone", a.contact.phone.getOrElse("").asJson),
       ("skype", a.contact.skype.getOrElse("").asJson),
       ("email", a.contact.email.asJson),
-      ("status_text", a.status.text.asJson),
-      ("status_text_canonical", a.status.canonical.asJson),
-      ("status_emoji", a.status.emoji.asJson),
-      ("status_expiration", a.status.expiration.asJson),
+      ("status_text", a.status.map(_.text).asJson),
+      ("status_text_canonical", a.status.map(_.canonical).asJson),
+      ("status_emoji", a.status.map(_.emoji).asJson),
+      ("status_expiration", a.status.map(_.expiration).asJson),
       ("title", a.title.asJson),
       ("avatar_hash", a.avatarHash.asJson),
       ("image_original", a.images.original.asJson),
@@ -216,7 +223,6 @@ object Profile {
       ("image_512", a.images.img512.asJson),
       ("team", a.team.asJson),
       ("always_active", a.alwaysActive.asJson),
-      ("fields", a.fields.asJson),
       ("guest_channels", a.guestChannels.asJson),
       ("guest_invited_by", a.invitedBy.asJson))
   }

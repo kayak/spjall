@@ -1,6 +1,5 @@
 package org.kapunga.spjall.model
 
-import org.kapunga.spjall.SlackId
 import cats.syntax.either._
 import io.circe._
 import io.circe.Decoder.Result
@@ -26,7 +25,10 @@ case class UserGroup(
   updatedBy: SlackId,
   deletedBy: Option[SlackId],
   prefs: Prefs,
-  users: List[SlackId])
+  users: List[SlackId]) extends SlackObject {
+
+  override val identifiers: List[String] = handle :: Nil
+}
 
 object UserGroup {
   case class Prefs(channels: List[SlackId], groups: List[SlackId])
