@@ -9,7 +9,6 @@ import org.kapunga.spjall._
 import scala.concurrent.Future
 
 object Users extends WebApi {
-
   def info(id: SlackId, includeLocale: Boolean = false)(implicit as: ActorSystem): Future[ApiResponse[User]] = {
     val params: Map[String, String] = Map(
       "user" -> id.id,
