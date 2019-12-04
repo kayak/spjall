@@ -7,9 +7,7 @@ import io.circe._
 import io.circe.syntax._
 import org.kapunga.spjall._
 
-sealed trait Conversation {
-  val id: SlackId
-}
+sealed trait Conversation extends SlackObject
 
 case class Channel(
   id: SlackId,
@@ -23,19 +21,21 @@ case class Channel(
   topic: Conversation.Meta,
   purpose: Conversation.Meta,
   previousNames: List[String],
-  numMembers: Option[Int]) extends Conversation
+  numMembers: Option[Int]) extends Conversation {
+
+  override val identifiers: List[String] = name :: Nil
+}
 
 object Channel {
   implicit val channelDecoder: Decoder[Channel] = new Decoder[Channel] {
     override def apply(c: HCursor): Result[Channel] = {
       val isChannel: Result[Boolean] =
         for {
-          isChannel <- c.downField("is_channel").as[Option[Boolean]].map(_.getOrElse(false))
-          isPrivate <- c.downField("is_private").as[Option[Boolean]].map(_.getOrElse(false))
-        } yield { isChannel && !isPrivate }
+          ic <- c.downField("is_channel").as[Option[Boolean]].map(_.getOrElse(false))
+          ip <- c.downField("is_private").as[Option[Boolean]].map(_.getOrElse(false))
+        } yield { ic && !ip }
 
       def parseChannel: Result[Channel] = {
-        println(c.value.spaces2)
         for {
           id <- c.downField("id").as[SlackId]
           name <- c.downField("name").as[String]
@@ -84,23 +84,25 @@ case class Group(
   purpose: Conversation.Meta,
   created: Long,
   creator: SlackId,
-  archived: Boolean) extends Conversation
+  archived: Boolean) extends Conversation {
+
+  override val identifiers: List[String] = name :: Nil
+}
 
 object Group {
   implicit val groupDecoder: Decoder[Group] = new Decoder[Group] {
     override def apply(c: HCursor): Result[Group] = {
       val isGroup: Result[Boolean] =
         for {
-          isGroup <- c.downField("is_group").as[Option[Boolean]].map(_.getOrElse(false))
-          isMpim <- c.downField("is_mpim").as[Option[Boolean]].map(_.getOrElse(false))
-        } yield { isGroup && !isMpim }
+          ig <- c.downField("is_group").as[Option[Boolean]].map(_.getOrElse(false))
+          imp <- c.downField("is_mpim").as[Option[Boolean]].map(_.getOrElse(false))
+        } yield { ig && !imp }
 
       def parseGroup: Result[Group] = {
-        println(c.value.spaces2)
         for {
           id <- c.downField("id").as[SlackId]
           name <- c.downField("name").as[String]
-          members <- c.downField("members").as[List[SlackId]]
+          members <- c.downField("members").as[Option[List[SlackId]]].map(_.getOrElse(Nil))
           topic <- c.downField("topic").as[Conversation.Meta]
           purpose <- c.downField("purpose").as[Conversation.Meta]
           created <- c.downField("created").as[Long]
@@ -109,7 +111,6 @@ object Group {
         } yield {
           Group(id, name, members, topic, purpose, created, creator, archived)
         }
-        throw new Exception("Group not implemented yet.")
       }
 
       isGroup.flatMap(if (_) parseGroup else Left(DecodingFailure("JSON is not a Group", c.history)))
@@ -131,23 +132,26 @@ object Group {
   }
 }
 
-case class Mpim(id: SlackId, name: String, members: List[SlackId], created: Long, creator: SlackId) extends Conversation
+case class Mpim(
+  id: SlackId,
+  name: String,
+  members: List[SlackId],
+  created: Long,
+  creator: SlackId) extends Conversation {
+
+  override val identifiers: List[String] = name :: Nil
+}
 
 object Mpim {
   implicit val mpimDecoder: Decoder[Mpim] = new Decoder[Mpim] {
     override def apply(c: HCursor): Result[Mpim] = {
-      val isMpim: Result[Boolean] =
-        for {
-          isMpim <- c.downField("is_mpim").as[Option[Boolean]].map(_.getOrElse(false))
-          isGroup <- c.downField("is_group").as[Option[Boolean]].map(_.getOrElse(false))
-        } yield { isMpim && !isGroup }
+      val isMpim: Result[Boolean] = c.downField("is_mpim").as[Option[Boolean]].map(_.getOrElse(false))
 
       def parseMpim: Result[Mpim] = {
-        println(c.value.spaces2)
         for {
           id <- c.downField("id").as[SlackId]
           name <- c.downField("name").as[String]
-          members <- c.downField("members").as[List[SlackId]]
+          members <- c.downField("members").as[Option[List[SlackId]]].map(_.getOrElse(Nil))
           created <- c.downField("created").as[Long]
           creator <- c.downField("creator").as[SlackId]
         } yield {
@@ -176,7 +180,10 @@ case class Im(
   user: SlackId,
   created: Long,
   priority: Double,
-  isUserDeleted: Boolean) extends Conversation
+  isUserDeleted: Boolean) extends Conversation {
+
+  override val identifiers: List[String] = user.id :: Nil
+}
 
 object Im {
   implicit val imDecoder: Decoder[Im] = new Decoder[Im] {
@@ -184,7 +191,6 @@ object Im {
       val isIm: Result[Boolean] = c.downField("is_im").as[Boolean]
 
       def parseIm: Result[Im] = {
-        println(c.value.spaces2)
         for {
           id <- c.downField("id").as[SlackId]
           user <- c.downField("user").as[SlackId]

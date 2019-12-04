@@ -1,9 +1,8 @@
-package org.kapunga.spjall
+package org.kapunga.spjall.model
 
 import cats.syntax.either._
-
-import io.circe._
 import io.circe.Decoder.Result
+import io.circe._
 
 import scala.util.matching.Regex
 
@@ -48,6 +47,8 @@ object SlackId {
   val idFormat: String = "[A-Z][A-Z0-9]{8}"
   val mentionRx: Regex = s"<[@#]($idFormat)>".r
 
+  def isSlackId(s: String): Boolean = s.matches(idFormat)
+
   /**
    * Auxiliary constructor for `SlackId`. Generates a `SlackId` from a String
    * @param id A String to convert into a `SlackId`
@@ -80,4 +81,39 @@ object SlackId {
     mentionRx.findAllMatchIn(msg)
       .map(_.group(1)).toSeq
       .map(SlackId(_))
+}
+
+trait IdMatcher[I] {
+  def matches(id: SlackId): Boolean
+}
+
+object IdMatcher {
+  implicit val channelIdMatcher: IdMatcher[Channel] = new IdMatcher[Channel] {
+    override def matches(id: SlackId): Boolean = id.isInstanceOf[ChannelId]
+  }
+
+  implicit val groupIdMatcher: IdMatcher[Group] = new IdMatcher[Group] {
+    override def matches(id: SlackId): Boolean = id.isInstanceOf[GroupId]
+  }
+
+  implicit val mpimIdMatcher: IdMatcher[Mpim] = new IdMatcher[Mpim] {
+    override def matches(id: SlackId): Boolean = id.isInstanceOf[GroupId]
+  }
+
+  implicit val imIdMatcher: IdMatcher[Im] = new IdMatcher[Im] {
+    override def matches(id: SlackId): Boolean = id.isInstanceOf[DmId]
+  }
+
+  implicit val convIdMatcher: IdMatcher[Conversation] = new IdMatcher[Conversation] {
+    override def matches(id: SlackId): Boolean =
+      Seq(channelIdMatcher, groupIdMatcher, mpimIdMatcher, imIdMatcher).exists(_.matches(id))
+  }
+
+  implicit val subGroupIdMatcher: IdMatcher[UserGroup] = new IdMatcher[UserGroup] {
+    override def matches(id: SlackId): Boolean = id.isInstanceOf[SubGroupId]
+  }
+
+  implicit val userIdMatcher: IdMatcher[User] = new IdMatcher[User] {
+    override def matches(id: SlackId): Boolean = id.isInstanceOf[UserId]
+  }
 }
