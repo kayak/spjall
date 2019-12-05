@@ -49,7 +49,7 @@ object UserGroup {
         dateUpdate <- c.downField("date_update").as[Long]
         dateDelete <- c.downField("date_delete").as[Long]
         autoType <- c.downField("auto_type").as[Option[String]]
-        autoProvision <- c.downField("auto_provision").as[Boolean]
+        autoProvision <- c.downField("auto_provision").as[Option[Boolean]].map(_.getOrElse(false))
         createdBy <- c.downField("created_by").as[SlackId]
         updatedBy <- c.downField("updated_by").as[SlackId]
         deletedBy <- c.downField("deleted_by").as[Option[SlackId]]
@@ -102,6 +102,6 @@ object UserGroup {
       ("prefs", Json.obj(
         ("channels", a.prefs.channels.asJson),
         ("groups", a.prefs.groups.asJson))),
-      ("users", a.users.asJson))
+      ("users", if (a.users.isEmpty) None.asJson else Some(a.users).asJson))
   }
 }
