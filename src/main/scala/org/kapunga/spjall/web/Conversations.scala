@@ -44,6 +44,6 @@ object Conversations extends WebApi {
 
     val req = HttpRequest(method = HttpMethods.POST, uri = apiUri("conversations.setTopic", params))
 
-    performApiRequest[String](req, Some("topic")).map(_.map(_ == topic))
+    performApiRequest[Channel](req, Some("channel")).map(_.map(_.topic.value == topic))
   }
 }

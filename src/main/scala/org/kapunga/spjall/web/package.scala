@@ -91,7 +91,7 @@ package object web {
 
       result match {
         // TODO Better error handling
-        case Left(failure) => throw new Exception(failure.message)
+        case Left(failure) => throw new Exception(s"Error parsing response: '${failure.message}' - content: $body")
         case Right(response) => response
       }
     }
