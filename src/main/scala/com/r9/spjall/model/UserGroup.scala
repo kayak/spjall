@@ -1,10 +1,10 @@
-package org.kapunga.spjall.model
+package com.r9.spjall.model
 
 import cats.syntax.either._
 import io.circe._
 import io.circe.Decoder.Result
 import io.circe.syntax._
-import org.kapunga.spjall.model.UserGroup.Prefs
+import com.r9.spjall.model.UserGroup.Prefs
 
 case class UserGroup(
   id: SlackId,

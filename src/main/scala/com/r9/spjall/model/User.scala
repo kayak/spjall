@@ -1,6 +1,6 @@
-package org.kapunga.spjall.model
+package com.r9.spjall.model
 
-import org.kapunga.spjall._
+import com.r9.spjall._
 import cats.syntax.either._
 import io.circe._
 import io.circe.Decoder.Result

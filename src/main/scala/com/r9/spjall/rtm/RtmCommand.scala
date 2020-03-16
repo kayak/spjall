@@ -1,8 +1,8 @@
-package org.kapunga.spjall.rtm
+package com.r9.spjall.rtm
 
 import io.circe._
 import io.circe.syntax._
-import org.kapunga.spjall._
+import com.r9.spjall._
 
 sealed trait RtmCommand {
   val id: Long

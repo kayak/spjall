@@ -2,10 +2,12 @@
 Spjall is an open source, reactive Slack chat bot framework using Akka. "Spjall" is the Icelandic word for "chat".
 The proper pronunciation can be found here: https://forvo.com/word/spjall/#is
 
+_*Spjall is experimental and incomplete at the moment.*_
+
 ## Slack WebAPI methods
-Supported Slack API methods return a `Future` and can be found in the package `org.kapunga.spjall.web`. All WebAPI
+Supported Slack API methods return a `Future` and can be found in the package `com.r9.spjall.web`. All WebAPI
 methods can be found in an `object` matching the API method family name with the specific method matching the actual
-method name, for example the Slack WebAPI method `rtm.connect` can be found at `org.kapunga.spjall.web.Rtm#connect`
+method name, for example the Slack WebAPI method `rtm.connect` can be found at `com.r9.spjall.web.Rtm#connect`
 
 ## Contributing
 
@@ -28,7 +30,7 @@ Here is example code calling the `Rtm.connect` method
 import akka.actor.ActorSystem
 import scala.concurrent._
 
-import org.kapunga.spjall.web._
+import com.r9.spjall.web._
 
 implicit val as: ActorSystem = ActorSystem("test")
 implicit val executionContext: ExecutionContext = as.dispatcher
@@ -38,4 +40,4 @@ res.foreach(println)
 ```
 
 ## Contact
-For questions or comments, contact Paul Thordarson - kapunga@gmail.com
+For questions or comments, contact Paul Thordarson - thor@kayak.com

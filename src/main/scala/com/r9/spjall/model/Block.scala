@@ -1,4 +1,4 @@
-package org.kapunga.spjall.model
+package com.r9.spjall.model
 
 import cats.syntax.either._
 import cats.syntax.functor._

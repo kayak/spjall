@@ -1,11 +1,11 @@
-package org.kapunga.spjall.rtm
+package com.r9.spjall.rtm
 
 import cats.syntax.either._
 import cats.syntax.functor._
 import io.circe.Decoder.Result
 import io.circe._
-import org.kapunga.spjall._
-import org.kapunga.spjall.TypeCheckingDecoder
+import com.r9.spjall._
+import com.r9.spjall.TypeCheckingDecoder
 
 import scala.reflect.ClassTag
 

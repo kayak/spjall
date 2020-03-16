@@ -1,4 +1,4 @@
-package org.kapunga.spjall
+package com.r9.spjall
 
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Query
@@ -8,7 +8,7 @@ import cats.syntax.either._
 import io.circe.Decoder.Result
 import io.circe._
 
-import org.kapunga.spjall.web.ApiResponse.Meta
+import com.r9.spjall.web.ApiResponse.Meta
 
 package object web {
   val apiRootUrl: String = config.getString("slack.api_root_url")

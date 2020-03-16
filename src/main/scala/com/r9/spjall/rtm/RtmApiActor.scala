@@ -1,4 +1,4 @@
-package org.kapunga.spjall.rtm
+package com.r9.spjall.rtm
 
 import akka.actor._
 import akka.http.scaladsl.Http
@@ -6,8 +6,9 @@ import akka.http.scaladsl.model.ws.{ Message, TextMessage, WebSocketRequest }
 import akka.stream.{ ActorMaterializer, OverflowStrategy, QueueOfferResult }
 import akka.stream.scaladsl.{ Sink, Source }
 import akka.util.Timeout
+import com.r9.spjall.web.Rtm.RtmConnectResponse
 import io.circe.syntax._
-import org.kapunga.spjall.web.Rtm
+import com.r9.spjall.web.Rtm
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -22,7 +23,7 @@ class RtmApiActor(initialSubscribers: Set[ActorRef]) extends Actor with ActorLog
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val timeout: Timeout = Timeout(60 seconds)
 
-  val rtmConnectResponse: Rtm.RtmConnectResponse = Await.result(Rtm.connect, timeout.duration).get
+  val rtmConnectResponse: RtmConnectResponse = Await.result(Rtm.connect, timeout.duration).get
 
   val msgCount: Iterator[Int] = Stream.from(1).iterator
 

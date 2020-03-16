@@ -1,9 +1,9 @@
-package org.kapunga.spjall.web
+package com.r9.spjall.web
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ HttpMethods, HttpRequest }
 import io.circe.Decoder
-import org.kapunga.spjall._
+import com.r9.spjall._
 
 import scala.concurrent.Future
 
@@ -15,7 +15,7 @@ import scala.concurrent.Future
  * Deprecated methods not included
  * - `rtm.start`
  *
- * @author Paul J Thordarson - kapunga@gmail.com
+ * @author Paul Thordarson - thor@kayak.com
  */
 object Rtm extends WebApi {
   /**
