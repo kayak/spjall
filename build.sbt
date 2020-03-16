@@ -5,7 +5,7 @@ lazy val circeVersion = "0.11.1"
 lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
-      organization    := "org.kapunga",
+      organization    := "com.r9",
       scalaVersion    := "2.11.12"
     )),
     name := "spjall",

@@ -1,9 +1,9 @@
-package org.kapunga.spjall.web
+package com.r9.spjall.web
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ HttpMethods, HttpRequest }
-import org.kapunga.spjall._
-import org.kapunga.spjall.model.UserGroup
+import com.r9.spjall._
+import com.r9.spjall.model.UserGroup
 
 import scala.concurrent.Future
 

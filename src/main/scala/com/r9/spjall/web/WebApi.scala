@@ -1,4 +1,4 @@
-package org.kapunga.spjall.web
+package com.r9.spjall.web
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -6,13 +6,13 @@ import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, StatusCodes }
 import akka.stream.ActorMaterializer
 import akka.util.ByteString
 import io.circe.Decoder
-import org.kapunga.spjall.web.ApiResponse._
+import com.r9.spjall.web.ApiResponse._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
 /**
  *
- * @author Paul J Thordarson
+ * @author Paul Thordarson - thor@kayak.com
  */
 trait WebApi {
   def performApiRequest[A: Decoder](r: HttpRequest, contentField: Option[String] = None)(implicit as: ActorSystem): Future[ApiResponse[A]] = {

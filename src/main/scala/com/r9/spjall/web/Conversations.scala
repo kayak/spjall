@@ -1,11 +1,11 @@
-package org.kapunga.spjall.web
+package com.r9.spjall.web
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{ HttpMethods, HttpRequest }
-import org.kapunga.spjall.model.ConvTypes.ConvTypes
-import org.kapunga.spjall.model._
-import org.kapunga.spjall._
-import org.kapunga.spjall.web.ApiResponse.Meta
+import com.r9.spjall.model.ConvTypes.ConvTypes
+import com.r9.spjall.model._
+import com.r9.spjall._
+import com.r9.spjall.web.ApiResponse.Meta
 
 import scala.concurrent.{ ExecutionContext, Future }
 

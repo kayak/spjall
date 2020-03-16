@@ -1,11 +1,11 @@
-package org.kapunga.spjall.model
+package com.r9.spjall.model
 
 import cats.syntax.either._
 import cats.syntax.functor._
 import io.circe.Decoder.Result
 import io.circe._
 import io.circe.syntax._
-import org.kapunga.spjall._
+import com.r9.spjall._
 
 sealed trait Conversation extends SlackObject
 

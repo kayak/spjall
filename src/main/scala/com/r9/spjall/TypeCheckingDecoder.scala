@@ -1,4 +1,4 @@
-package org.kapunga.spjall
+package com.r9.spjall
 
 import cats.syntax.either._
 import io.circe.Decoder.Result

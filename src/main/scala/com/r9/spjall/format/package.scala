@@ -1,4 +1,4 @@
-package org.kapunga.spjall
+package com.r9.spjall
 
 package object format {
   def formatCall(num: String): String = formatLink(num.replaceAll("[ \\+\\-]", ""), num, "tel:")

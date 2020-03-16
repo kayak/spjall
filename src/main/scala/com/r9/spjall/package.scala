@@ -1,4 +1,4 @@
-package org.kapunga
+package com.r9
 
 import com.typesafe.config.{ Config, ConfigFactory }
 

@@ -1,4 +1,4 @@
-package org.kapunga.spjall.model
+package com.r9.spjall.model
 
 import cats.syntax.either._
 import io.circe.Decoder.Result
@@ -9,7 +9,7 @@ import scala.util.matching.Regex
 /**
  * A `trait` used by a number of subclasses that represent a Slack id.
  *
- * @author Paul J Thordarson
+ * @author Paul Thordarson - thor@kayak.com
  */
 sealed trait SlackId {
   val id: String

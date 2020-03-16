@@ -1,4 +1,4 @@
-package org.kapunga.spjall
+package com.r9.spjall
 
 import akka.actor.ActorRef
 import collection.JavaConverters._
