@@ -1,3 +1,5 @@
+import sbt.{Credentials, Path}
+
 lazy val akkaHttpVersion = "10.1.8"
 lazy val akkaVersion    = "2.5.21"
 lazy val circeVersion = "0.11.1"
@@ -29,3 +31,23 @@ lazy val root = (project in file(".")).
       "org.scalatest"     %% "scalatest"            % "3.0.5"         % Test
     )
   )
+
+credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
+
+publishTo := {
+  val nexus = sys.env.get("NEXUS_HOST")
+  val snapshotDir = sys.env.get("SNAPSHOT_DIR")
+  val releasesDir = sys.env.get("RELEASES_DIR")
+
+  if (version.value.endsWith("SNAPSHOT")) {
+    for {
+      host <- nexus
+      dir  <- snapshotDir
+    } yield "snapshots" at host + dir
+  } else {
+    for {
+      host <- nexus
+      dir  <- releasesDir
+    } yield "releases" at host + dir
+  }
+}
