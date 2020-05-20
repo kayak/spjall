@@ -9,7 +9,7 @@ lazy val root = (project in file(".")).
       scalaVersion    := "2.11.12"
     )),
     name := "spjall",
-    version := "0.1.0-SNAPSHOT",
+    version := "0.2-SNAPSHOT",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "requests" % "0.1.7",
       "com.typesafe" % "config" % "1.3.2",
