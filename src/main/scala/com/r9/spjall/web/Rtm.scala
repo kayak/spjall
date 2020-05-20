@@ -1,9 +1,9 @@
-package org.kapunga.spjall.web
+package com.r9.spjall.web
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest}
-import org.kapunga.spjall.{SlackId, botTokenParam}
-import spray.json.{DefaultJsonProtocol, RootJsonFormat}
+import akka.http.scaladsl.model.{ HttpMethods, HttpRequest }
+import io.circe.Decoder
+import com.r9.spjall._
 
 import scala.concurrent.Future
 
@@ -15,7 +15,7 @@ import scala.concurrent.Future
  * Deprecated methods not included
  * - `rtm.start`
  *
- * @author Paul J Thordarson - kapunga@gmail.com
+ * @author Paul Thordarson - thor@kayak.com
  */
 object Rtm extends WebApi {
   /**
@@ -26,7 +26,6 @@ object Rtm extends WebApi {
    * @return A `Future[RtmConnectResponse]` that can be used to connect to the Slack RTM Api
    */
   def connect(implicit as: ActorSystem): Future[ApiResponse[RtmConnectResponse]] = {
-    import RtmWebJsonProtocol._
 
     val request = HttpRequest(method = HttpMethods.GET, uri = apiUri("rtm.connect", botTokenParam))
 
@@ -42,6 +41,11 @@ object Rtm extends WebApi {
    */
   case class RtmConnectResponse(url: String, team: SlackTeam, self: SlackSelf)
 
+  object RtmConnectResponse {
+    implicit val rtmConnectResponseDecoder: Decoder[RtmConnectResponse] =
+      Decoder.forProduct3("url", "team", "self")(RtmConnectResponse.apply)
+  }
+
   /**
    *
    * @param id
@@ -50,6 +54,11 @@ object Rtm extends WebApi {
    */
   case class SlackTeam(id: SlackId, name: String, domain: String)
 
+  object SlackTeam {
+    implicit val slackTeamDecoder: Decoder[SlackTeam] =
+      Decoder.forProduct3("id", "name", "domain")(SlackTeam.apply)
+  }
+
   /**
    *
    * @param id
@@ -57,14 +66,8 @@ object Rtm extends WebApi {
    */
   case class SlackSelf(id: SlackId, name: String)
 
-  /**
-   * Spray JSON protocol for parsing classes relating to the `Rtm` family of Slack API calls
-   */
-  object RtmWebJsonProtocol extends DefaultJsonProtocol {
-    import org.kapunga.spjall.SlackIdJsonProtocol._
-
-    implicit val slackTeamFormat: RootJsonFormat[SlackTeam] = jsonFormat3(SlackTeam)
-    implicit val slackSelfFormat: RootJsonFormat[SlackSelf] = jsonFormat2(SlackSelf)
-    implicit val rtmConnectResponseFormat: RootJsonFormat[RtmConnectResponse] = jsonFormat3(RtmConnectResponse)
+  object SlackSelf {
+    implicit val slackSelfDecoder: Decoder[SlackSelf] =
+      Decoder.forProduct2("id", "name")(SlackSelf.apply)
   }
 }
