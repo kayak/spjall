@@ -43,8 +43,7 @@ object SlackId {
   implicit val slackIdEncoder: Encoder[SlackId] = new Encoder[SlackId] {
     override def apply(a: SlackId): Json = Json.fromString(a.id)
   }
-
-  val idFormat: String = "[A-Z][A-Z0-9]{8}"
+  val idFormat: String = "[A-Z][A-Z0-9]{8,}"
   val mentionRx: Regex = s"<[@#]($idFormat)>".r
 
   def isSlackId(s: String): Boolean = s.matches(idFormat)
