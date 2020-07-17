@@ -11,7 +11,7 @@ lazy val root = (project in file(".")).
       scalaVersion    := "2.11.12"
     )),
     name := "spjall",
-    version := "0.1.2",
+    version := "0.1.3",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "requests" % "0.1.7",
       "com.typesafe" % "config" % "1.3.2",
@@ -21,7 +21,6 @@ lazy val root = (project in file(".")).
       "io.circe" %% "circe-parser"  % circeVersion,
 
       "com.typesafe.akka" %% "akka-http"            % akkaHttpVersion,
-      //"com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
       "com.typesafe.akka" %% "akka-http-xml"        % akkaHttpVersion,
       "com.typesafe.akka" %% "akka-stream"          % akkaVersion,
 
