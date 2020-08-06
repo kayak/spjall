@@ -94,9 +94,9 @@ object Group {
     override def apply(c: HCursor): Result[Group] = {
       val isGroup: Result[Boolean] =
         for {
-          ig <- c.downField("is_group").as[Option[Boolean]].map(_.getOrElse(false))
-          imp <- c.downField("is_mpim").as[Option[Boolean]].map(_.getOrElse(false))
-        } yield { ig && !imp }
+          ic <- c.downField("is_channel").as[Option[Boolean]].map(_.getOrElse(false))
+          ip <- c.downField("is_private").as[Option[Boolean]].map(_.getOrElse(false))
+        } yield { ic && ip }
 
       def parseGroup: Result[Group] = {
         for {
