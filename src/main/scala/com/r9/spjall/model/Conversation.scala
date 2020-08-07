@@ -95,8 +95,9 @@ object Group {
       val isGroup: Result[Boolean] =
         for {
           ic <- c.downField("is_channel").as[Option[Boolean]].map(_.getOrElse(false))
+          ig <- c.downField("is_group").as[Option[Boolean]].map(_.getOrElse(false))
           ip <- c.downField("is_private").as[Option[Boolean]].map(_.getOrElse(false))
-        } yield { ic && ip }
+        } yield { (ic || ig) && ip }
 
       def parseGroup: Result[Group] = {
         for {
@@ -202,7 +203,7 @@ object Im {
         }
       }
 
-      isIm.flatMap(if (_) parseIm else Left(DecodingFailure("JSON is not an IM", c.history)))
+      isIm.flatMap(if (_) parseIm else Left(DecodingFailure(s"JSON is not an IM - ${c.focus.map(_.spaces2).getOrElse("")}", c.history)))
     }
   }
 
