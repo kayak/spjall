@@ -121,8 +121,9 @@ object Group {
   implicit val groupEncoder: Encoder[Group] = new Encoder[Group] {
     override def apply(a: Group): Json = Json.obj(
       ("id", a.id.asJson),
+      ("is_channel", false.asJson),
       ("is_group", true.asJson),
-      ("is_mpim", false.asJson),
+      ("is_private", true.asJson),
       ("name", a.name.asJson),
       ("members", a.members.asJson),
       ("topic", a.topic.asJson),
