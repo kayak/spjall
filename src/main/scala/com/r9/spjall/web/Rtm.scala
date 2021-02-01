@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.{ HttpMethods, HttpRequest }
 import io.circe.Decoder
 import com.r9.spjall._
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
  * API methods for the `rtm` family of Slack WebAPI method calls.
@@ -25,11 +25,23 @@ object Rtm extends WebApi {
    * @param as An implicit `ActorSystem`, required to make the asynchronous call using akka-http.
    * @return A `Future[RtmConnectResponse]` that can be used to connect to the Slack RTM Api
    */
-  def connect(implicit as: ActorSystem): Future[ApiResponse[RtmConnectResponse]] = {
+  def connect(retries: Long = 0)(implicit as: ActorSystem): Future[ApiResponse[RtmConnectResponse]] = {
+    implicit val ec: ExecutionContext = as.dispatcher
 
     val request = HttpRequest(method = HttpMethods.GET, uri = apiUri("rtm.connect", botTokenParam))
 
-    performApiRequest[RtmConnectResponse](request)
+    performApiRequest[RtmConnectResponse](request).recoverWith({
+      case e =>
+        if (retries >= rtmConnectRetries) {
+          as.log.error(e, "RTM reconnect failed, max retries exceeded. Giving up.")
+          Future.failed[ApiResponse[RtmConnectResponse]](e)
+        } else {
+          val retryTimeout: Long = math.pow(2, retries).toLong
+          as.log.error(e, s"RTM reconnect failed, waiting $retryTimeout seconds to retry...")
+          Thread.sleep(retryTimeout * 1000L)
+          connect(retries + 1)
+        }
+    })
   }
 
   /**
