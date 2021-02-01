@@ -35,7 +35,7 @@ import com.r9.spjall.web._
 implicit val as: ActorSystem = ActorSystem("test")
 implicit val executionContext: ExecutionContext = as.dispatcher
 
-val res = Rtm.connect
+val res = Rtm.connect()
 res.foreach(println)
 ```
 
