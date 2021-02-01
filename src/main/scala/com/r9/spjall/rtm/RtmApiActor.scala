@@ -23,7 +23,7 @@ class RtmApiActor(initialSubscribers: Set[ActorRef]) extends Actor with ActorLog
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val timeout: Timeout = Timeout(60 seconds)
 
-  val rtmConnectResponse: RtmConnectResponse = Await.result(Rtm.connect, timeout.duration).get
+  val rtmConnectResponse: RtmConnectResponse = Await.result(Rtm.connect(), timeout.duration).get
 
   val msgCount: Iterator[Int] = Stream.from(1).iterator
 
@@ -46,6 +46,8 @@ class RtmApiActor(initialSubscribers: Set[ActorRef]) extends Actor with ActorLog
       self ! nextPing
     case Hello =>
       log.info("Successfully connected to Slack RTM API")
+    case Goodbye(source) =>
+      log.warning(s"Received 'Goodbye' from '$source'")
     case Pong(r, ts) =>
       unAcked = unAcked - r
       log.debug(s"Received ping response to '$r' sent at '$ts' ")
@@ -76,6 +78,11 @@ class RtmApiActor(initialSubscribers: Set[ActorRef]) extends Actor with ActorLog
   def nextPing: Ping = {
     val nextPing = Ping()
     if (unAcked.size > pingWarnSize) log.warning(s"Un-acked pings: ${unAcked.size}")
+    if (unAcked.size > pingFailSize) {
+      log.error(s"Too many un-acked pings, failing over...")
+      throw RtmFailedException("Too many un-acked pings, websocket probably down.", subscribers)
+    }
+
     unAcked = unAcked + nextPing.id
     nextPing
   }
@@ -97,12 +104,19 @@ class RtmApiActor(initialSubscribers: Set[ActorRef]) extends Actor with ActorLog
     queue.offer(TextMessage(cmd.noSpaces)).onComplete({
       case Success(x) =>
         x match {
-          case QueueOfferResult.Enqueued => log.debug(s"Enqueue of ${rc.getClass.getSimpleName} succeeded.")
-          case QueueOfferResult.Dropped => log.warning(s"Enqueue failed, dropped: ${cmd.noSpaces}")
-          case QueueOfferResult.Failure(cause) => log.warning(s"Enqueue failed: $cause")
-          case QueueOfferResult.QueueClosed => log.warning(s"Queue is closed")
+          case QueueOfferResult.Enqueued =>
+            log.debug(s"Enqueue of ${rc.getClass.getSimpleName} succeeded.")
+          case QueueOfferResult.Dropped =>
+            log.warning(s"Enqueue failed, dropped: ${cmd.noSpaces}")
+          case QueueOfferResult.Failure(cause) =>
+            log.warning(s"Enqueue failed: $cause")
+          case QueueOfferResult.QueueClosed =>
+            log.error(s"Queue is closed")
+            throw RtmFailedException("Attempting to write to a closed queue.", subscribers)
         }
-      case Failure(e) => log.warning(s"Enqueue failed to complete: $e")
+      case Failure(e) =>
+        log.error(e, "Enqueue failed to complete.")
+        throw RtmFailedException("Enqueue failed to complete.", subscribers)
     })
   }
 
@@ -117,8 +131,13 @@ class RtmApiActor(initialSubscribers: Set[ActorRef]) extends Actor with ActorLog
    * @param reason The reason for the restart
    */
   override def postRestart(reason: Throwable): Unit = reason match {
-    case rce: RtmClosedException => subscribers = rce.subscribers
-    case t: Throwable => log.warning(s"Restarted with unexpected throwable type: ${t.getClass.getName}")
+    case rce: RtmClosedException =>
+      subscribers = rce.subscribers
+    case rfe: RtmFailedException =>
+      log.warning(s"Restarted for reason '${rfe.message}'")
+      subscribers = rfe.subscribers
+    case t: Throwable =>
+      log.warning(s"Restarted with unexpected throwable type: ${t.getClass.getName}")
   }
 
   /**

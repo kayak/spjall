@@ -11,6 +11,8 @@ import io.circe._
 import com.r9.spjall.web.ApiResponse.Meta
 
 package object web {
+  val rtmConnectRetries: Int = config.getInt("slack.rtm_api.connect_retries")
+
   val apiRootUrl: String = config.getString("slack.api_root_url")
 
   def apiUri(method: String, params: Map[String, String]): Uri = Uri(s"$apiRootUrl/$method").withQuery(Query(params))

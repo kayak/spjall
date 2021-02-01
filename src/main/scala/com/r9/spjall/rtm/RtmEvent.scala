@@ -39,6 +39,15 @@ case object Hello extends RtmEvent {
   }
 }
 
+case class Goodbye(source: String) extends RtmEvent
+
+object Goodbye {
+  implicit val goodbyeDecoder: Decoder[Goodbye] = new RtmDecoder[Goodbye]("goodbye") {
+    override def parse(c: HCursor): Result[Goodbye] =
+      for { source <- c.downField("source").as[String] } yield { Goodbye(source) }
+  }
+}
+
 case class Pong(replyTo: Long, time: Long) extends RtmEvent
 
 object Pong {
@@ -322,6 +331,7 @@ object RtmEvent {
 
   implicit val rtmEventDecoder: Decoder[RtmEvent] = List[Decoder[RtmEvent]](
     Hello.helloDecoder.widen,
+    Goodbye.goodbyeDecoder.widen,
     Pong.pongDecoder.widen,
     Ignored.ignoredDecoder.widen, // This should go in early to make sure ignored messages are blocked.
     ChannelArchive.channelArchiveDecoder.widen,
